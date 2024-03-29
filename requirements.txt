@@ -1,2 +1,7 @@
 streamlit
 pandas
+pypdf
+numpy
+easyocr
+matplotlib
+opencv-python

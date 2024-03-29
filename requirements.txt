@@ -5,3 +5,4 @@ numpy
 easyocr
 matplotlib
 opencv-python
+python-pptx

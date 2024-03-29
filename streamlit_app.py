@@ -208,6 +208,22 @@ def process_slide(slide,img_path,size,textcontent):
     print("----picture top/left/width/height in number", new_pic_shape.top,new_pic_shape.left,new_pic_shape.width,new_pic_shape.height)
     print("----picture top/left/width/height in CM", new_pic_shape.top/360000,new_pic_shape.left/360000,new_pic_shape.width/360000,new_pic_shape.height/360000)
 
+    #增加第几周的角标
+    txBox_label = slide.shapes.add_textbox(GLOBAL_SLIDE_WIDTH*0.875,0,GLOBAL_SLIDE_WIDTH/8,Cm(1))
+    tf = txBox_label.text_frame
+    tf.word_wrap = True
+    tf.vertical_anchor = MSO_VERTICAL_ANCHOR.MIDDLE
+    tf.clear()
+
+    p = tf.add_paragraph()
+    p.alignment = PP_PARAGRAPH_ALIGNMENT.RIGHT
+    p.text = st.session_state.corner_label
+    p.font.name="微软雅黑"
+    p.font.bold=True
+    p.font.size=Pt(18)
+    dprint(INFO_DEBUG_INFO,"添加角标",p.text)
+
+    #添加图片对应的文字
     txBox = slide.shapes.add_textbox(GLOBAL_SLIDE_WIDTH/2,0,GLOBAL_SLIDE_WIDTH/2,GLOBAL_SLIDE_HEIGHT)
     tf = txBox.text_frame
     tf.word_wrap = True
@@ -310,6 +326,14 @@ def ConvertPdf2PptforEnglishCard(uploaded_files):
             dprint(INFO_DEBUG_INFO,pdf_text[0].find("磨出好耳朵"), pdf_text[0].find("周计划"))
 
             if pdf_text[0].find("磨出好耳朵")!=-1 or pdf_text[0].find("周计划")!=-1:
+                if pdf_text[0].find("周计划")!=-1:
+                    pattern = r"第[\u4e00-\u9fa5]周"
+                    match = re.search(pattern, pdf_text[0])
+                    if match:
+                        st.session_state.corner_label=match.group()
+                        st.session_state.corner_label=st.session_state.corner_label.replace("\n","").replace("\r","")
+                        print("角标是：",st.session_state.corner_label)
+
                 Is_it_a_Card=False
                 continue
             dprint(INFO_DEBUG_INFO,pdf_text)
@@ -361,7 +385,7 @@ def show_web_icon():
   
 
 # Page title
-st.set_page_config(page_title='<center>铭铭的英语学习卡转换器<center>', page_icon='https://github.com/dragonleehom/pdf2/raw/master/data/icon.png')
+st.set_page_config(page_title='铭铭的英语学习卡转换器', page_icon='https://github.com/dragonleehom/pdf2/raw/master/data/icon.png')
 #st.image('data/Ming.png', caption='')
 # 创建三列，图像放在中间列
 
@@ -377,6 +401,7 @@ with st.expander('关于工具'):
   
 st.subheader('请上传待转换文件,仅支持pdf,可同时上传多个文件')
 
+
 # 初始化会话状态
 if 'computation_done' not in st.session_state:
     st.session_state.computation_done = False
@@ -386,8 +411,13 @@ if 'repeatrun' not in st.session_state:
     st.session_state.repeatrun = 0
 if 'download_files' not in st.session_state:
     st.session_state.download_files = []
+if 'corner_label' not in st.session_state:
+    st.session_state.corner_label = ""
 
 st.session_state.repeatrun += 1
+
+
+
 
 uploaded_files=st.file_uploader("请上传文件",type=['pdf','PDF'],accept_multiple_files=True)
 

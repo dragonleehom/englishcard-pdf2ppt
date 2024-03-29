@@ -381,11 +381,11 @@ def ConvertPdf2PptforEnglishCard(uploaded_files):
 
 
 def show_web_icon():
-    st.image("https://github.com/dragonleehom/pdf2/raw/master/data/icon.png",width=200)
+    st.image("https://github.com/dragonleehom/englishcard-pdf2ppt/blob/main/icon.png?raw=true",width=200)
   
 
 # Page title
-st.set_page_config(page_title='铭铭的英语学习卡转换器', page_icon='https://github.com/dragonleehom/pdf2/raw/master/data/icon.png')
+st.set_page_config(page_title='铭铭的英语学习卡转换器', page_icon='https://github.com/dragonleehom/englishcard-pdf2ppt/blob/main/icon.png?raw=true')
 #st.image('data/Ming.png', caption='')
 # 创建三列，图像放在中间列
 

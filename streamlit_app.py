@@ -250,103 +250,104 @@ def process_slide(slide,img_path,size,textcontent):
    
 def ConvertPdf2PptforEnglishCard(uploaded_files):
   #uploaded_file_name=""
-  for uploaded_file in uploaded_files:
-    bytes_data = uploaded_file.read()
-    uploaded_file_name=uploaded_file.name
-    with open(uploaded_file_name, "wb") as f:
-        f.write(uploaded_file.getbuffer())
+    for uploaded_file in uploaded_files:
+        bytes_data = uploaded_file.read()
+        uploaded_file_name=uploaded_file.name
+        with open(uploaded_file_name, "wb") as f:
+            f.write(uploaded_file.getbuffer())
 
-    src_pdf=PdfReader(uploaded_file_name)
+        src_pdf=PdfReader(uploaded_file_name)
 
-    status_message = st.empty()
-    progress_bar = st.progress(0)
+        status_message = st.empty()
+        progress_bar = st.progress(0)
 
-    status_message.text("开始转换文件："+uploaded_file_name)
+        status_message.text("开始转换文件："+uploaded_file_name)
 
-    target_pdfile_name = "转换后-" + uploaded_file.name
-    target_pptfile_name = os.path.splitext(target_pdfile_name)[0] + '.pptx'
-    
-    prs_dst = Presentation()
-    prs_dst.slide_height=GLOBAL_SLIDE_HEIGHT
-    prs_dst.slide_width=GLOBAL_SLIDE_WIDTH
-    blank_slide_layout=prs_dst.slide_layouts[6]
+        target_pdfile_name = "转换后-" + uploaded_file.name
+        target_pptfile_name = os.path.splitext(target_pdfile_name)[0] + '.pptx'
+        
+        prs_dst = Presentation()
+        prs_dst.slide_height=GLOBAL_SLIDE_HEIGHT
+        prs_dst.slide_width=GLOBAL_SLIDE_WIDTH
+        blank_slide_layout=prs_dst.slide_layouts[6]
 
-    #状态栏标记基数
-    pagenum=0
-    imgnum=0
-    totalImage=len(src_pdf.pages[0].images)
+        #状态栏标记基数
+        pagenum=0
+        imgnum=0
+        totalImage=len(src_pdf.pages[0].images)
 
-    dprint(INFO_DEBUG_INFO,"总共待处理图片：",totalImage)
-    
+        dprint(INFO_DEBUG_INFO,"总共待处理图片：",totalImage)
+        
 
-    #遍历所有页面
-    #for eachpdfpage in src_pdf.pages:
+        #遍历所有页面
+        #for eachpdfpage in src_pdf.pages:
 
-    pagenum+=1
-    imgnum=0
-    #遍历页面中的所有图像元素
-    for image_file_object in src_pdf.pages[0].images:
+        pagenum+=1
+        imgnum=0
+        #遍历页面中的所有图像元素
+        for image_file_object in src_pdf.pages[0].images:
 
-      imgnum+=1
-      status_message.text("--开始图像分割与识别，页面:"+str(pagenum)+"图像："+str(imgnum))
-      progresspct=int(imgnum/totalImage*100)
-      print("当前共有图片：",totalImage,"处理进度到：",progresspct)
-      progress_bar.progress(progresspct)
+            imgnum+=1
+            status_message.text("--开始图像分割与识别，页面:"+str(pagenum)+"图像："+str(imgnum))
+            progresspct=int(imgnum/totalImage*100)
+            print("当前共有图片：",totalImage,"处理进度到：",progresspct)
+            progress_bar.progress(progresspct)
 
-      #将文件临时存储起来
-      pdfimg_tmpFile_name="tmpimg"+os.path.splitext(image_file_object.name)[-1]
-      with open(pdfimg_tmpFile_name,'wb') as pdf2ppt_tmpFile:
-        pdf2ppt_tmpFile.write(image_file_object.data)
+            #将文件临时存储起来
+            pdfimg_tmpFile_name="tmpimg"+os.path.splitext(image_file_object.name)[-1]
+            with open(pdfimg_tmpFile_name,'wb') as pdf2ppt_tmpFile:
+                pdf2ppt_tmpFile.write(image_file_object.data)
 
-      #开始处理图片
-      cv2_raw_image = cv2.imread(pdfimg_tmpFile_name)
+            #开始处理图片
+            cv2_raw_image = cv2.imread(pdfimg_tmpFile_name)
 
-      #识别图片中的文字
-      pdf_text=ocr_processor.readtext(cv2_raw_image,detail=0)
+            #识别图片中的文字
+            pdf_text=ocr_processor.readtext(cv2_raw_image,detail=0)
 
-      #识别是卡片图片
-      Is_it_a_Card = True
-      #for eachword in pdf_text:
-      dprint(INFO_DEBUG_INFO,pdf_text[0].find("磨出好耳朵"), pdf_text[0].find("周计划"))
+            #识别是卡片图片
+            Is_it_a_Card = True
+            #for eachword in pdf_text:
+            dprint(INFO_DEBUG_INFO,pdf_text[0].find("磨出好耳朵"), pdf_text[0].find("周计划"))
 
-      if pdf_text[0].find("磨出好耳朵")!=-1 or pdf_text[0].find("周计划")!=-1:
-          Is_it_a_Card=False
-          continue
-      dprint(INFO_DEBUG_INFO,pdf_text)
-      
+            if pdf_text[0].find("磨出好耳朵")!=-1 or pdf_text[0].find("周计划")!=-1:
+                Is_it_a_Card=False
+                continue
+            dprint(INFO_DEBUG_INFO,pdf_text)
+            
 
-      if(Is_it_a_Card==True):
-        dprint(INFO_DEBUG_INFO,cv2_raw_image.shape,10)
-        cv2_raw_image=crop_edge(cv2_raw_image,10)
-        dprint(INFO_DEBUG_INFO,cv2_raw_image.shape)
+            if(Is_it_a_Card==True):
+                dprint(INFO_DEBUG_INFO,cv2_raw_image.shape,10)
+                cv2_raw_image=crop_edge(cv2_raw_image,10)
+                dprint(INFO_DEBUG_INFO,cv2_raw_image.shape)
 
-        split_position = find_split_position(cv2_raw_image)
+                split_position = find_split_position(cv2_raw_image)
 
-        dprint(INFO_DEBUG_INFO,split_position)
+                dprint(INFO_DEBUG_INFO,split_position)
 
-        # 分割图片
-        left_image = cv2_raw_image[:, :split_position]
-        #right_image = cv2_raw_image[:, split_position:]
+                # 分割图片
+                left_image = cv2_raw_image[:, :split_position]
+                #right_image = cv2_raw_image[:, split_position:]
 
-        left_crop_image =enlarge_foreground_with_grabcut(left_image,2,5)
-        cv2.imwrite("Left_"+image_file_object.name,left_crop_image)
+                left_crop_image =enlarge_foreground_with_grabcut(left_image,2,5)
+                fileextension=os.path.splitext(image_file_object.name)[1]
+                leftimgfilenametmp="Left_img_tmp"+fileextension
+                cv2.imwrite(leftimgfilenametmp,left_crop_image)
 
-        slide_dst = prs_dst.slides.add_slide(blank_slide_layout)
-        print(left_crop_image.shape)
-        process_slide(slide_dst,"Left_"+image_file_object.name,left_crop_image.shape,pdf_text)
+                slide_dst = prs_dst.slides.add_slide(blank_slide_layout)
+                print(left_crop_image.shape)
+                process_slide(slide_dst,leftimgfilenametmp,left_crop_image.shape,pdf_text)
 
-    prs_dst.save(target_pptfile_name)
+        prs_dst.save(target_pptfile_name)
 
-    progress_bar.progress(100)
-    status_message.text("转换完成！"+uploaded_file_name)
-
-    #prs_dst.saveas(target_pdffile_name,FileFormat=32)
-    with open(target_pptfile_name, 'rb') as pptf:
-      target_file = pptf
-      if st.download_button('下载转换后的pptx', target_file.read(),file_name=target_pptfile_name,mime="pptx",key=uuid.uuid1()):
-          status_message.text("开始下载！"+uploaded_file_name)
-    
-    
+        progress_bar.progress(100)
+        status_message.text("转换完成！"+uploaded_file_name)
+        st.session_state.download_files.append(target_pptfile_name)
+        #prs_dst.saveas(target_pdffile_name,FileFormat=32)
+        # with open(target_pptfile_name, 'rb') as pptf:
+        #     target_file = pptf
+        #     if st.download_button('下载转换后的pptx', target_file.read(),file_name=target_pptfile_name,mime="pptx",key=uuid.uuid1()):
+        #         status_message.text("开始下载！"+uploaded_file_name)
+    st.session_state.uploaded_files = uploaded_files
       # with open(target_pdffile_name, 'rb') as pdff:
       #   target_file = pdff
       # st.download_button('下载转换后的pdf', target_file.read(),file_name=target_pdffile_name,mime="pdf") 
@@ -374,58 +375,33 @@ with st.expander('关于工具'):
   st.warning('请将特定的PDF文本直接拖入到文件上传框中即可.')
   
 st.subheader('请上传待转换文件,仅支持pdf,可同时上传多个文件')
-uploaded_files=st.file_uploader("请上传文件",type=['pdf','PDF'],accept_multiple_files=True)
 
 # 初始化会话状态
 if 'computation_done' not in st.session_state:
     st.session_state.computation_done = False
 if 'uploaded_files' not in st.session_state:
     st.session_state.uploaded_files = []
+if 'repeatrun' not in st.session_state:
+    st.session_state.repeatrun = 0
+if 'download_files' not in st.session_state:
+    st.session_state.download_files = []
+
+st.session_state.repeatrun += 1
+
+uploaded_files=st.file_uploader("请上传文件",type=['pdf','PDF'],accept_multiple_files=True)
+
 
 if uploaded_files is not None and uploaded_files != st.session_state.uploaded_files:
-  print(uploaded_files)
   st.session_state.computation_done = False
   #with st.status("开始启动转换...", expanded=True) as status:
   st.session_state.uploaded_files = uploaded_files
   ConvertPdf2PptforEnglishCard(uploaded_files)
-  uploaded_files.clear()
-  
 
-  
-  #status.update(label="转换完成!", state="complete", expanded=False)
-
-
-
-# Load data
-# df = pd.read_csv('data/movies_genres_summary.csv')
-# df.year = df.year.astype('int')
-
-# # Input widgets
-# ## Genres selection
-# genres_list = df.genre.unique()
-# genres_selection = st.multiselect('Select genres', genres_list, ['Action', 'Adventure', 'Biography', 'Comedy', 'Drama', 'Horror'])
-
-# ## Year selection
-# year_list = df.year.unique()
-# year_selection = st.slider('Select year duration', 1986, 2006, (2000, 2016))
-# year_selection_list = list(np.arange(year_selection[0], year_selection[1]+1))
-
-# df_selection = df[df.genre.isin(genres_selection) & df['year'].isin(year_selection_list)]
-# reshaped_df = df_selection.pivot_table(index='year', columns='genre', values='gross', aggfunc='sum', fill_value=0)
-# reshaped_df = reshaped_df.sort_values(by='year', ascending=False)
+for each_download_file in st.session_state.download_files:
+    with open(each_download_file, 'rb') as pptf:
+        target_file = pptf
+        st.write(each_download_file) 
+        st.download_button('下载转换后的pptx', target_file.read(),file_name=each_download_file,mime="pptx",key=uuid.uuid1())
 
 
-# # Display DataFrame
 
-# df_editor = st.data_editor(reshaped_df, height=212, use_container_width=True,
-#                             column_config={"year": st.column_config.TextColumn("Year")},
-#                             num_rows="dynamic")
-# df_chart = pd.melt(df_editor.reset_index(), id_vars='year', var_name='genre', value_name='gross')
-
-# # Display chart
-# chart = alt.Chart(df_chart).mark_line().encode(
-#             x=alt.X('year:N', title='Year'),
-#             y=alt.Y('gross:Q', title='Gross earnings ($)'),
-#             color='genre:N'
-#             ).properties(height=320)
-# st.altair_chart(chart, use_container_width=True)

@@ -240,20 +240,23 @@ def process_slide(slide,img_path,size,textcontent):
     p.font.name="Calibri"
     p.font.bold=True
     p.font.size=Pt(80)
+    if len(p.text)>=8:
+        p.font.size=Pt(66)
+
 
     p = tf.add_paragraph()
     p.alignment = PP_PARAGRAPH_ALIGNMENT.CENTER
     p.text = textcontent[1]
     p.font.name="微软雅黑"
     p.font.bold=False
-    p.font.size=Pt(36)
+    p.font.size=Pt(32)
 
     p = tf.add_paragraph()
     p.alignment = PP_PARAGRAPH_ALIGNMENT.CENTER
     p.text = textcontent[2]
     p.font.name="微软雅黑"
     p.font.bold=False
-    p.font.size=Pt(36)
+    p.font.size=Pt(32)
 
        
 

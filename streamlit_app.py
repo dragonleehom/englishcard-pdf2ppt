@@ -360,7 +360,7 @@ def show_web_icon():
   
 
 # Page title
-st.set_page_config(page_title='<center>铭铭的英语学习卡转换器<center>', page_icon='data/Ming.png')
+st.set_page_config(page_title='<center>铭铭的英语学习卡转换器<center>', page_icon='https://github.com/dragonleehom/pdf2/raw/master/data/icon.png')
 #st.image('data/Ming.png', caption='')
 # 创建三列，图像放在中间列
 

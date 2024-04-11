@@ -161,7 +161,7 @@ def rearrange_strings(strings):
         if english_index is None and s.isascii():
             english_index = i
         # 找到第一个包含特殊字符的字符串
-        if special_char_index is None and ('(' in s or '（' in s):
+        if special_char_index is None and ('(' in s or '（' in s or ')' in s or '）' in s):
             special_char_index = i
         # 如果两个条件都已满足，提前结束循环
         if english_index is not None and special_char_index is not None:

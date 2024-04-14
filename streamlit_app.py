@@ -31,6 +31,7 @@ ALL_DEBUG_INFO = 8
 #参数定义
 GLOBAL_SLIDE_WIDTH=Cm(21)
 GLOBAL_SLIDE_HEIGHT=Cm(14.8)
+GLOBAL_IMAGE_SCALE=1.5
 
 def dprint(DEBUG_LEVEL,*args):
   len_args = range(len(args))
@@ -355,7 +356,7 @@ def ConvertPdf2PptforEnglishCard(uploaded_files):
                 left_image = cv2_raw_image[:, :split_position]
                 #right_image = cv2_raw_image[:, split_position:]
 
-                left_crop_image =enlarge_foreground_with_grabcut(left_image,2,5)
+                left_crop_image =enlarge_foreground_with_grabcut(left_image,GLOBAL_IMAGE_SCALE,5)
                 fileextension=os.path.splitext(image_file_object.name)[1]
                 leftimgfilenametmp="Left_img_tmp"+fileextension
                 cv2.imwrite(leftimgfilenametmp,left_crop_image)
